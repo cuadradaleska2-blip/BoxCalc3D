@@ -1,0 +1,8 @@
+BOXCALC3D - VERSION INICIAL
+
+1. Subí TODOS los archivos de esta carpeta a un repositorio NUEVO de GitHub (no reemplaces PinkCalc ni Pulpería Las 3D).
+2. En Settings > Pages, elegí Deploy from a branch, main, /(root).
+3. Abrí la URL HTTPS publicada en Chrome Android y elegí Instalar aplicación o Añadir a pantalla de inicio.
+4. La aplicación guarda datos localmente en el navegador. Usá Ajustes > Descargar respaldo JSON frecuentemente.
+
+IMPORTANTE: El estimador de pesos usa rangos genéricos por categoría, NO datos verificados del artículo. El enlace se almacena, pero no consulta automáticamente Amazon/SHEIN/Temu. Los importes de impuestos y envío interno se ingresan manualmente. Las tarifas son editables. Verificá si el casillero redondea o usa peso volumétrico. Las cotizaciones son documentos comerciales orientativos, no facturas fiscales autorizadas.
