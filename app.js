@@ -11,6 +11,26 @@ $('estimate').onclick=()=>{let r=ranges[$('category').value],q=Math.max(1,Math.f
 function values(){let qty=Math.max(1,Math.floor(num('qty'))),subtotal=num('unit')*qty,storeCharges=num('shopShipping')+num('tax')+num('extras'),shipping=num('weight')*num('rate'),cost=subtotal+storeCharges+shipping,suggested=cost+Number($('profit').value||0),price=$('override').checked?num('finalPrice'):suggested;return{qty,subtotal,storeCharges,shipping,cost,suggested,price,profit:price-cost,fx:num('fx')}}
 function recalc(){let v=values();$('overrideWrap').hidden=!$('override').checked;$('calcResults').innerHTML=`<div class="pill">Compra en tienda: <b>${usd(v.subtotal+v.storeCharges)}</b><br>Transporte Pinolero Box: <b>${usd(v.shipping)}</b><br>Costo total estimado: <b>${usd(v.cost)}</b></div><div class="total">Precio final al cliente<br><strong>${usd(v.price)}</strong><br>${cord(v.price*v.fx)}</div><div class="${v.profit<0?'warn':'good'}">${v.profit<0?'⚠️ Pérdida estimada':'✓ Ganancia estimada'}: ${usd(v.profit)}${v.profit===0?' (sin ganancia)':''}</div>`}
 ['qty','weight','rate','unit','shopShipping','tax','extras','profit','fx','override','finalPrice'].forEach(id=>$(id).addEventListener('input',recalc));$('store').onchange=()=>{$('rate').value=db.rates[$('store').value];recalc()};
+async function autoReadProductLink(){
+ const link=$('url').value.trim();if(!link)return;
+ let u;try{u=new URL(link);if(!['https:','http:'].includes(u.protocol))throw Error()}catch(e){toast('Pegá un enlace válido');return}
+ const host=u.hostname.toLowerCase();if(!/(amazon\.|a\.co$|shein\.|temu\.)/.test(host)){toast('Enlace no reconocido: Amazon, SHEIN o Temu');return}
+ const btn=$('autoLookup');btn.disabled=true;btn.textContent='Buscando...';
+ try{
+  const r=await fetch(link,{mode:'cors',redirect:'follow',credentials:'omit',signal:AbortSignal.timeout(9000)});
+  if(!r.ok)throw Error('Sin acceso');
+  const doc=new DOMParser().parseFromString(await r.text(),'text/html');
+  const meta=(k)=>doc.querySelector('meta[property="'+k+'"],meta[name="'+k+'"]')?.content?.trim()||'';
+  let name=meta('og:title')||doc.querySelector('title')?.textContent?.trim()||'';
+  let price=meta('product:price:amount')||meta('og:price:amount')||'';
+  for(const el of doc.querySelectorAll('script[type="application/ld+json"]')){try{let raw=JSON.parse(el.textContent),nodes=Array.isArray(raw)?raw:[raw];for(const node of nodes){const v=node['@graph']||[node];for(const entry of (Array.isArray(v)?v:[v])){if(String(entry['@type']||'').includes('Product')){name=entry.name||name;const offers=Array.isArray(entry.offers)?entry.offers[0]:entry.offers;price=offers?.price||price}}}}catch(e){}}
+  if(!name&&!price)throw Error('No hay datos disponibles');
+  if(name)$('product').value=name.slice(0,160);
+  if(price&&Number(String(price).replace(',','.'))>0)$('unit').value=Number(String(price).replace(',','.'));
+  recalc();toast('Datos encontrados. Revisá nombre y precio antes de guardar.');
+ }catch(e){toast('La tienda bloquea la lectura automática. Podés agregar nombre, precio y foto manualmente.')}finally{btn.disabled=false;btn.textContent='🔎 Buscar datos del enlace'}
+}
+$('autoLookup').onclick=autoReadProductLink;
 $('photo').onchange=()=>{let f=$('photo').files[0];if(!f)return;let rd=new FileReader();rd.onload=()=>{$('photoPreview').src=rd.result;$('photoPreview').hidden=false};rd.readAsDataURL(f)};
 function reset(){['product','url'].forEach(id=>$(id).value='');['unit','shopShipping','tax','extras','weight'].forEach(id=>$(id).value=0);$('profit').value=10;$('qty').value=1;$('categorySearch').value='';$('categorySearch').dispatchEvent(new Event('input'));$('category').value='';$('override').checked=false;$('photo').value='';$('photoPreview').hidden=true;$('photoPreview').removeAttribute('src');$('estimateText').textContent='Elegí una categoría para obtener un rango orientativo.';recalc()}$('reset').onclick=reset;
 function compressImage(src,done){if(!src)return done('');let img=new Image();img.onload=()=>{let c=document.createElement('canvas'),scale=Math.min(1,420/Math.max(img.width,img.height));c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);done(c.toDataURL('image/jpeg',.65))};img.onerror=()=>done('');img.src=src}
@@ -77,8 +97,32 @@ async function canvasForQuote(q){
  // Contact appears once in the illustrated footer; no duplicate white overlay.
  return c;
 }
-async function canvasMultiQuote(q){const items=itemsOf(q),perPage=13,pages=Math.ceil(items.length/perPage),pageH=1450,c=document.createElement('canvas');c.width=900;c.height=pageH*pages;const x=c.getContext('2d');const ink='#142b50',navy='#10376c';async function art(src,y,h){try{let im=new Image();im.src=src;await im.decode();x.drawImage(im,0,y,900,h)}catch(e){x.fillStyle=navy;x.fillRect(0,y,900,h)}}
-for(let page=0;page<pages;page++){const y=page*pageH;x.fillStyle='#fff';x.fillRect(0,y,900,pageH);await art('./decor-header.jpg',y,176);x.fillStyle=navy;x.font='bold 28px system-ui';x.fillText(`${q.type==='Cotización'?'COTIZACIÓN':'COMPROBANTE'} ${q.number}`,54,y+220);x.fillStyle='#e6f2ff';x.fillRect(45,y+245,810,115);x.fillStyle=ink;x.font='bold 27px system-ui';x.fillText('Cliente: '+String(q.client).slice(0,33),65,y+288);x.font='22px system-ui';x.fillText('Fecha: '+q.date+'   ·   Página '+(page+1)+' de '+pages,65,y+330);x.fillStyle=navy;x.font='bold 25px system-ui';x.fillText('PRODUCTO / TIENDA',65,y+406);x.textAlign='right';x.fillText('CANT.',685,y+406);x.fillText('TOTAL',835,y+406);x.textAlign='left';let slice=items.slice(page*perPage,(page+1)*perPage);slice.forEach((i,k)=>{let yy=y+449+k*47;x.fillStyle=k%2?'#f1f7ff':'#fff';x.fillRect(50,yy-30,800,45);x.fillStyle=ink;x.font='21px system-ui';let name=String(i.product||'Producto');while(x.measureText(name).width>465&&name.length>5)name=name.slice(0,-2)+'…';x.fillText(name,65,yy-7);x.fillStyle='#617a8c';x.font='15px system-ui';x.fillText(String(i.store||''),65,yy+12);x.fillStyle=ink;x.font='21px system-ui';x.textAlign='right';x.fillText(String(i.qty||1),685,yy);x.fillText(usd(i.price),835,yy);x.textAlign='left'});if(page===pages-1){let top=y+1080;x.fillStyle='#e6f2ff';x.fillRect(50,top,800,100);x.fillStyle=navy;x.font='bold 25px system-ui';x.fillText('Total: '+usd(q.price),68,top+34);x.fillText('Abonado: '+usd(paid(q)),420,top+34);let balance=Math.max(0,q.price-paid(q));x.fillStyle=balance<.005?'#087c37':'#10376c';x.font='bold 29px system-ui';x.fillText(balance<.005?'PAGADO':'SALDO PENDIENTE: '+usd(balance),68,top+77)}await art('./decor-footer.jpg',y+1190,260)}return c}
+async function canvasMultiQuote(q){
+ const items=itemsOf(q),perPage=7,pages=Math.ceil(items.length/perPage),pageH=1450,c=document.createElement('canvas');
+ c.width=900;c.height=pageH*pages;const x=c.getContext('2d');const ink='#142b50',navy='#10376c';
+ async function art(src,y,h){try{const im=new Image();im.src=src;await im.decode();x.drawImage(im,0,y,900,h)}catch(e){x.fillStyle=navy;x.fillRect(0,y,900,h)}}
+ async function productPhoto(src,px,py){if(!src)return;try{const im=new Image();im.src=src;await im.decode();const r=Math.min(82/im.width,76/im.height);x.drawImage(im,px+(82-im.width*r)/2,py+(76-im.height*r)/2,im.width*r,im.height*r)}catch(e){}}
+ for(let page=0;page<pages;page++){
+  const y=page*pageH;x.fillStyle='#fff';x.fillRect(0,y,900,pageH);await art('./decor-header.jpg',y,176);
+  x.fillStyle=navy;x.font='bold 28px system-ui';x.fillText(`${q.type==='Cotización'?'COTIZACIÓN':'COMPROBANTE'} ${q.number}`,54,y+220);
+  x.fillStyle='#e6f2ff';x.fillRect(45,y+245,810,115);x.fillStyle=ink;x.font='bold 27px system-ui';x.fillText('Cliente: '+String(q.client).slice(0,33),65,y+288);
+  x.font='22px system-ui';x.fillText('Fecha: '+q.date+'   ·   Página '+(page+1)+' de '+pages,65,y+330);
+  x.fillStyle=navy;x.font='bold 25px system-ui';x.fillText('FOTO / PRODUCTO / TIENDA',65,y+406);x.textAlign='right';x.fillText('CANT.',685,y+406);x.fillText('TOTAL',835,y+406);x.textAlign='left';
+  const slice=items.slice(page*perPage,(page+1)*perPage);
+  for(let k=0;k<slice.length;k++){
+   const i=slice[k],top=y+425+k*96;
+   x.fillStyle=k%2?'#f1f7ff':'#fff';x.fillRect(50,top,800,94);
+   if(i.photo)await productPhoto(i.photo,58,top+7);
+   else {x.fillStyle='#e4edf7';x.fillRect(60,top+10,78,73);x.fillStyle='#64829c';x.font='35px system-ui';x.fillText('▣',82,top+59)}
+   x.fillStyle=ink;x.font='21px system-ui';let name=String(i.product||'Producto');while(x.measureText(name).width>355&&name.length>5)name=name.slice(0,-2)+'…';x.fillText(name,153,top+40);
+   x.fillStyle='#617a8c';x.font='17px system-ui';x.fillText(String(i.store||''),153,top+66);
+   x.fillStyle=ink;x.font='21px system-ui';x.textAlign='right';x.fillText(String(i.qty||1),685,top+50);x.fillText(usd(i.price),835,top+50);x.textAlign='left';
+  }
+  if(page===pages-1){let top=y+1080;x.fillStyle='#e6f2ff';x.fillRect(50,top,800,100);x.fillStyle=navy;x.font='bold 25px system-ui';x.fillText('Total: '+usd(q.price),68,top+34);x.fillText('Abonado: '+usd(paid(q)),420,top+34);let balance=Math.max(0,q.price-paid(q));x.fillStyle=balance<.005?'#087c37':'#10376c';x.font='bold 29px system-ui';x.fillText(balance<.005?'PAGADO':'SALDO PENDIENTE: '+usd(balance),68,top+77)}
+  await art('./decor-footer.jpg',y+1190,260);
+ }
+ return c
+}
 async function imageForQuote(q){const c=await canvasForQuote(q);return await new Promise(resolve=>c.toBlob(resolve,'image/png'))}
 function downloadQuote(blob,q){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`BoxCalc3D-${q.number}.png`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000)}
 $('share').onclick=async()=>{let q=db.quotes.find(x=>x.id===activeId);if(!q)return;try{let blob=await imageForQuote(q);if(!blob)throw Error('No se pudo crear imagen');let file=new File([blob],`BoxCalc3D-${q.number}.png`,{type:'image/png'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:`${db.business} ${q.number}`});return}catch(e){if(e.name==='AbortError')return}}downloadQuote(blob,q);toast('Factura guardada como imagen. Compartila desde Galería o Descargas.')}catch(e){toast('No se pudo generar la imagen. Probá Imprimir / PDF.')}};$('print').onclick=()=>window.print();$('backQuotes').onclick=()=>renderList();
