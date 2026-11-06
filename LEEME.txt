@@ -1,7 +1,1 @@
-BoxCalc3D - Actualización del estimador de peso (v6)
-
-Incluye buscador y nuevas categorías; el botón Estimar peso multiplica por la cantidad.
-Conserva el almacenamiento local (boxcalc3d-v1), facturas y abonos.
-Hacé respaldo JSON antes de subir los archivos a GitHub.
-Subí los archivos del ZIP en la raíz del repositorio y confirmá los cambios.
-Los rangos de peso son aproximados y no representan pesos verificados.
+BoxCalc3D v7: pedidos con muchos productos, abono opcional, editar productos, añadir a pedidos existentes, historial y edición de abonos. IMPORTANTE: descargá respaldo JSON antes de actualizar. Subí archivos extraídos a la raíz de GitHub; no borres datos del navegador. Se conserva la clave localStorage boxcalc3d-v1.
