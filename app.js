@@ -32,7 +32,7 @@ async function canvasForQuote(q){
  x.fillStyle=navy;x.font='bold 28px system-ui';x.fillText(`${q.type==='Cotización'?'COTIZACIÓN':'COMPROBANTE'}  ${q.number}`,62,219);
  function rect(px,py,w,h,color){x.fillStyle=color;x.beginPath();x.roundRect(px,py,w,h,20);x.fill()}
  rect(44,245,812,74,pale);x.fillStyle=ink;x.font='25px system-ui';x.fillText('Fecha: '+q.date,65,291);x.textAlign='right';x.fillText('Tienda: '+q.store,833,291);x.textAlign='left';
- rect(44,332,812,70,pale);x.font='bold 30px system-ui';x.fillText('Cliente: '+String(q.client).slice(0,30),65,378);
+ rect(44,332,812,70,pale);x.fillStyle=ink;x.font='bold 30px system-ui';x.fillText('Cliente: '+String(q.client).slice(0,30),65,378);
  rect(44,422,812,388,'#f7faff');x.fillStyle=ink;x.font='bold 28px system-ui';x.fillText('DETALLE DE TU PEDIDO',70,466);
  if(q.photo){try{const im=new Image();im.src=q.photo;await im.decode();const r=Math.min(290/im.width,220/im.height);x.drawImage(im,450-im.width*r/2,484+(220-im.height*r)/2,im.width*r,im.height*r)}catch(e){}}
  else {rect(360,491,180,195,'#ffeaf2');x.font='85px system-ui';x.textAlign='center';x.fillText('🛍️',450,615);x.textAlign='left'}
