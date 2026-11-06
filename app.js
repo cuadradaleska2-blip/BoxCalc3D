@@ -47,8 +47,7 @@ async function canvasForQuote(q){
  else {x.fillStyle='#d32770';x.font='italic bold 25px system-ui';x.textAlign='center';x.fillText('♡ Pendiente de pago ♡',450,1180);x.textAlign='left'}
  // Approved illustrated footer: girl, shopping bags, delivery truck and capybara.
  await artwork('./decor-footer.jpg',0,1187,900,263);
- // Contact is rendered as live order setting, not baked into the artwork.
- x.fillStyle='#fff';x.beginPath();x.roundRect(377,1283,270,48,16);x.fill();x.fillStyle=navy;x.font='bold 26px system-ui';x.textAlign='center';x.fillText('WhatsApp: '+(db.phone||'76918637'),512,1316);x.textAlign='left';
+ // Contact appears once in the illustrated footer; no duplicate white overlay.
  return c;
 }
 async function imageForQuote(q){const c=await canvasForQuote(q);return await new Promise(resolve=>c.toBlob(resolve,'image/png'))}

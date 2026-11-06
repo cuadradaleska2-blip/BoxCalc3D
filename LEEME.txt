@@ -1,5 +1,3 @@
-BoxCalc3D - Actualizacion 4: diseno ilustrado de facturas.
-Subir TODOS los archivos de este ZIP a la raiz del repositorio GitHub, reemplazando los existentes.
-Antes, hacer respaldo desde Ajustes. No desinstalar ni borrar datos del navegador.
-Se mantienen las cotizaciones en localStorage, el envio PNG y la impresion PDF.
-El sello verde PAGADO aparece al llegar el saldo a cero.
+BoxCalc3D - corrección de factura (v4b)
+Elimina el recuadro blanco que duplicaba el número de WhatsApp sobre el pie de página. Conserva las demás funciones y el almacenamiento local.
+Subir los archivos a la raíz del repositorio GitHub Pages. No borrar los datos del navegador ni desinstalar la aplicación.
