@@ -1,3 +1,7 @@
-BoxCalc3D - corrección de factura (v4b)
-Elimina el recuadro blanco que duplicaba el número de WhatsApp sobre el pie de página. Conserva las demás funciones y el almacenamiento local.
-Subir los archivos a la raíz del repositorio GitHub Pages. No borrar los datos del navegador ni desinstalar la aplicación.
+BoxCalc3D - Actualización del estimador de peso (v6)
+
+Incluye buscador y nuevas categorías; el botón Estimar peso multiplica por la cantidad.
+Conserva el almacenamiento local (boxcalc3d-v1), facturas y abonos.
+Hacé respaldo JSON antes de subir los archivos a GitHub.
+Subí los archivos del ZIP en la raíz del repositorio y confirmá los cambios.
+Los rangos de peso son aproximados y no representan pesos verificados.
