@@ -21,27 +21,35 @@ function roundRect(ctx,x,y,w,h,r,fill){ctx.beginPath();ctx.roundRect(x,y,w,h,r);
 function capybara(ctx,cx,cy){ctx.save();ctx.translate(cx,cy);ctx.fillStyle='#b98659';ctx.beginPath();ctx.ellipse(0,22,69,48,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(-18,-12,47,42,0,0,Math.PI*2);ctx.fill();for(const dx of [-44,5]){ctx.beginPath();ctx.arc(dx,-42,13,0,7);ctx.fill()}ctx.fillStyle='#402f29';for(const dx of [-33,-3]){ctx.beginPath();ctx.arc(dx,-18,4.5,0,7);ctx.fill()}ctx.beginPath();ctx.ellipse(-17,3,7,5,0,0,7);ctx.fill();ctx.strokeStyle='#402f29';ctx.lineWidth=3;ctx.beginPath();ctx.arc(-17,5,12,0,Math.PI);ctx.stroke();ctx.fillStyle='#75c3ed';ctx.beginPath();ctx.moveTo(-2,32);ctx.lineTo(-25,20);ctx.lineTo(-24,43);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(2,32);ctx.lineTo(25,20);ctx.lineTo(24,43);ctx.closePath();ctx.fill();ctx.restore()}
 function shopper(ctx,cx,cy){ctx.save();ctx.translate(cx,cy);ctx.fillStyle='#244f7b';ctx.beginPath();ctx.arc(0,-49,25,0,7);ctx.fill();ctx.fillStyle='#f6cba8';ctx.beginPath();ctx.arc(0,-47,18,0,7);ctx.fill();ctx.fillStyle='#e7a1bb';roundRect(ctx,-25,-19,50,65,15,'#e7a1bb');ctx.fillStyle='#244f7b';ctx.fillRect(-19,42,13,32);ctx.fillRect(6,42,13,32);ctx.fillStyle='#f6cba8';ctx.fillRect(-35,-8,11,43);ctx.fillRect(24,-8,11,43);roundRect(ctx,-58,18,30,40,5,'#7fc6e7');roundRect(ctx,28,14,34,45,5,'#f5b9c7');ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(-43,18,8,Math.PI,0);ctx.arc(45,14,8,Math.PI,0);ctx.stroke();ctx.restore()}
 async function canvasForQuote(q){
- const c=document.createElement('canvas');c.width=900;c.height=1400;const x=c.getContext('2d');
- const navy='#173f75',ink='#1a3653',blue='#4ca8d4',light='#eaf5fd',pink='#ffe9f0';
- x.fillStyle='#f0f7fd';x.fillRect(0,0,900,1400);roundRect(x,28,26,844,1347,30,'#fff');
- x.save();x.beginPath();x.roundRect(28,26,844,1347,30);x.clip();x.fillStyle=navy;x.fillRect(28,26,844,205);x.fillStyle='#247eb2';x.beginPath();x.ellipse(690,90,290,175,0,0,7);x.fill();x.fillStyle='#6cc1e6';x.beginPath();x.ellipse(850,160,230,140,0,0,7);x.fill();x.restore();
- x.fillStyle='#fff';x.font='bold 52px system-ui';x.fillText('BoxCalc3D',72,105);x.font='25px system-ui';x.fillText('Tu compra, nuestra alegría  ♡',74,148);
- roundRect(x,70,173,300,44,20,'#fff');x.fillStyle=navy;x.font='bold 22px system-ui';x.fillText(`${q.type==='Cotización'?'COTIZACIÓN':'COMPROBANTE'} ${q.number}`,86,202);
- roundRect(x,64,258,772,122,18,light);x.fillStyle=ink;x.font='24px system-ui';x.fillText(`Fecha: ${q.date}`,88,305);x.fillText(`Tienda: ${q.store}`,475,305);x.font='bold 29px system-ui';x.fillText('Cliente: '+String(q.client).slice(0,33),88,350);
- roundRect(x,64,405,772,325,18,'#f7fbff');x.fillStyle=ink;x.font='bold 27px system-ui';x.fillText('DETALLE DE TU PEDIDO',91,451);
- if(q.photo){try{const im=new Image();im.src=q.photo;await im.decode();const r=Math.min(300/im.width,200/im.height);x.drawImage(im,450-im.width*r/2,475+(200-im.height*r)/2,im.width*r,im.height*r)}catch(e){}}
- else {roundRect(x,340,478,220,180,16,pink);x.font='85px system-ui';x.textAlign='center';x.fillText('🛍️',450,600);x.textAlign='left'}
- x.fillStyle=ink;x.font='bold 27px system-ui';let p=String(q.product||'Producto');if(p.length>46){x.fillText(p.slice(0,46),91,691);x.fillText(p.slice(46,88),91,723)}else x.fillText(p,91,695);
- x.font='23px system-ui';x.fillText(`Cantidad: ${q.qty}`,92,766);
- function line(label,value,y){x.fillStyle=ink;x.font='25px system-ui';x.fillText(label,91,y);x.font='bold 28px system-ui';x.textAlign='right';x.fillText(value,803,y);x.textAlign='left';x.fillStyle='#d8eaf5';x.fillRect(90,y+17,712,2)}
- line('Total del pedido',usd(q.price),827);line('Total en córdobas',cord(q.price*q.fx),890);line('Adelantos y abonos',usd(paid(q)),953);
+ const c=document.createElement('canvas');c.width=900;c.height=1450;const x=c.getContext('2d');
+ const navy='#10376c',ink='#142b50',pale='#e6f2ff';
+ x.fillStyle='#ffffff';x.fillRect(0,0,900,1450);
+ async function artwork(url,dx,dy,dw,dh){try{let im=new Image();im.src=url;await im.decode();x.drawImage(im,dx,dy,dw,dh);return true}catch(e){return false}}
+ // Artwork comes from the approved invoice design; customer data remains dynamic.
+ if(!await artwork('./decor-header.jpg',0,0,900,176)){
+   x.fillStyle=navy;x.fillRect(0,0,900,176);x.fillStyle='#fff';x.font='bold 55px system-ui';x.fillText('BoxCalc3D',55,102)
+ }
+ x.fillStyle=navy;x.font='bold 28px system-ui';x.fillText(`${q.type==='Cotización'?'COTIZACIÓN':'COMPROBANTE'}  ${q.number}`,62,219);
+ function rect(px,py,w,h,color){x.fillStyle=color;x.beginPath();x.roundRect(px,py,w,h,20);x.fill()}
+ rect(44,245,812,74,pale);x.fillStyle=ink;x.font='25px system-ui';x.fillText('Fecha: '+q.date,65,291);x.textAlign='right';x.fillText('Tienda: '+q.store,833,291);x.textAlign='left';
+ rect(44,332,812,70,pale);x.font='bold 30px system-ui';x.fillText('Cliente: '+String(q.client).slice(0,30),65,378);
+ rect(44,422,812,388,'#f7faff');x.fillStyle=ink;x.font='bold 28px system-ui';x.fillText('DETALLE DE TU PEDIDO',70,466);
+ if(q.photo){try{const im=new Image();im.src=q.photo;await im.decode();const r=Math.min(290/im.width,220/im.height);x.drawImage(im,450-im.width*r/2,484+(220-im.height*r)/2,im.width*r,im.height*r)}catch(e){}}
+ else {rect(360,491,180,195,'#ffeaf2');x.font='85px system-ui';x.textAlign='center';x.fillText('🛍️',450,615);x.textAlign='left'}
+ x.fillStyle=ink;x.font='bold 30px system-ui';const product=String(q.product||'Producto');x.fillText(product.slice(0,42),70,744);if(product.length>42)x.fillText(product.slice(42,80),70,779);
+ x.font='25px system-ui';x.fillText('Cantidad: '+q.qty,72,842);
+ function line(label,value,y){x.fillStyle=ink;x.font='25px system-ui';x.fillText(label,72,y);x.font='bold 28px system-ui';x.textAlign='right';x.fillText(value,830,y);x.textAlign='left';x.fillStyle='#dce8f5';x.fillRect(70,y+16,760,2)}
+ line('Total del pedido',usd(q.price),900);line('Total en córdobas',cord(q.price*q.fx),960);line('Adelantos y abonos',usd(paid(q)),1020);
  const bal=Math.max(0,Number(q.price)-paid(q)),isPaid=bal<0.005;
- roundRect(x,72,986,756,115,18,isPaid?'#e4f7e9':'#e1f2ff');x.fillStyle=isPaid?'#167d44':navy;x.font='bold 30px system-ui';x.fillText(isPaid?'SALDO CANCELADO':'SALDO PENDIENTE',96,1031);x.textAlign='right';x.font='bold 39px system-ui';x.fillText(usd(bal),797,1072);x.textAlign='left';
- if(isPaid){x.save();x.translate(460,565);x.rotate(-.19);x.strokeStyle='#16864b';x.lineWidth=8;x.strokeRect(-160,-50,320,100);x.fillStyle='#16864b';x.font='bold 64px system-ui';x.textAlign='center';x.fillText('PAGADO',0,24);x.restore()}
- x.fillStyle=navy;x.font='bold 29px system-ui';x.textAlign='center';x.fillText('¡Gracias por tu preferencia!',450,1158);x.font='25px system-ui';x.fillText('WhatsApp: '+(db.phone||'76918637'),450,1202);x.textAlign='left';
- x.fillStyle='#d6eefb';x.beginPath();x.ellipse(450,1370,520,113,0,Math.PI,2*Math.PI);x.fill();shopper(x,153,1270);capybara(x,739,1294);
- x.font='56px system-ui';x.fillText('🛍️',267,1316);x.fillText('📦',353,1316);x.fillText('🚚',511,1316);
- x.fillStyle='#246998';x.font='19px system-ui';x.textAlign='center';x.fillText('Con cariño, BoxCalc3D',450,1360);x.textAlign='left';return c;
+ rect(48,1050,804,92,isPaid?'#e2f8e8':'#e0f0ff');x.fillStyle=isPaid?'#087c37':navy;x.font='bold 28px system-ui';x.fillText(isPaid?'SALDO CANCELADO':'SALDO PENDIENTE',70,1104);x.font='bold 38px system-ui';x.textAlign='right';x.fillText(usd(bal),827,1104);x.textAlign='left';
+ // The stamp is only displayed after all payments have been recorded.
+ if(isPaid){x.save();x.translate(455,650);x.rotate(-.14);x.strokeStyle='#008b30';x.lineWidth=10;x.beginPath();x.ellipse(0,0,167,77,0,0,Math.PI*2);x.stroke();rect(-150,-43,300,86,'#078a32');x.fillStyle='#fff';x.font='bold 59px system-ui';x.textAlign='center';x.fillText('PAGADO',0,20);x.restore()}
+ else {x.fillStyle='#d32770';x.font='italic bold 25px system-ui';x.textAlign='center';x.fillText('♡ Pendiente de pago ♡',450,1180);x.textAlign='left'}
+ // Approved illustrated footer: girl, shopping bags, delivery truck and capybara.
+ await artwork('./decor-footer.jpg',0,1187,900,263);
+ // Contact is rendered as live order setting, not baked into the artwork.
+ x.fillStyle='#fff';x.beginPath();x.roundRect(377,1283,270,48,16);x.fill();x.fillStyle=navy;x.font='bold 26px system-ui';x.textAlign='center';x.fillText('WhatsApp: '+(db.phone||'76918637'),512,1316);x.textAlign='left';
+ return c;
 }
 async function imageForQuote(q){const c=await canvasForQuote(q);return await new Promise(resolve=>c.toBlob(resolve,'image/png'))}
 function downloadQuote(blob,q){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`BoxCalc3D-${q.number}.png`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000)}

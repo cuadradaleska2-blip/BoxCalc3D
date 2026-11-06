@@ -1,1 +1,5 @@
-BoxCalc3D actualización 2\n\nAntes de subir: Ajustes > Descargar respaldo JSON.\nSubir los archivos sueltos a la raíz del MISMO repositorio BoxCalc3D y confirmar cambios.\nNo borrar datos del sitio, no desinstalar.\nBotón Compartir imagen: usa compartir archivos si el navegador lo admite; de lo contrario descarga PNG.\nWhatsApp predeterminado 76918637, editable en Ajustes.\nLas fotos aparecen cuando se adjuntaron al crear la cotización.\n
+BoxCalc3D - Actualizacion 4: diseno ilustrado de facturas.
+Subir TODOS los archivos de este ZIP a la raiz del repositorio GitHub, reemplazando los existentes.
+Antes, hacer respaldo desde Ajustes. No desinstalar ni borrar datos del navegador.
+Se mantienen las cotizaciones en localStorage, el envio PNG y la impresion PDF.
+El sello verde PAGADO aparece al llegar el saldo a cero.
